@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { AngularFireDatabase, AngularFireList } from '@angular/fire/database';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
 import { Player } from '../interfaces/player';
+import { map } from 'rxjs/operators';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -11,6 +11,8 @@ export class PlayerService {
   private playersDb: AngularFireList<Player>;
 
   constructor(private db: AngularFireDatabase) {
+    // console.log(db);
+    // console.log(this.db);
     this.playersDb = this.db.list('/players', (ref) =>
       ref.orderByChild('name')
     );
@@ -26,5 +28,19 @@ export class PlayerService {
         }));
       })
     );
+  }
+
+  addPlayer(player: Player) {
+    return this.playersDb.push(player);
+  }
+
+  editPlayer(newPlayerData: Player) {
+    const $key = newPlayerData.$key;
+    delete newPlayerData.$key;
+    this.db.list('/players').update($key, newPlayerData);
+  }
+
+  deletePlayer(id: string) {
+    this.db.list('/players').remove(id);
   }
 }
